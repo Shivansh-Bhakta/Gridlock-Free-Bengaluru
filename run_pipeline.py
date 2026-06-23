@@ -609,10 +609,29 @@ def build_combined_dashboard(df, top_50, email_data_list=None):
     map_b64 = base64.b64encode(map_content.encode('utf-8')).decode('utf-8')
     chart_b64 = base64.b64encode(chart_content.encode('utf-8')).decode('utf-8')
     
-    # Calculate average coordinates (centers) for each police station
-    station_centers = df.groupby('police_station')[['latitude', 'longitude']].mean().rename(
-        columns={'latitude': 'lat', 'longitude': 'lon'}
-    ).to_dict(orient='index')
+    # Calculate coordinates for each police station (use highest-ranked hotspot in top_50, or fallback to mean center)
+    station_centers = {}
+    for station in df['police_station'].unique():
+        if pd.isna(station):
+            continue
+        station_hotspots = top_50[top_50['canonical_station'] == station]
+        if not station_hotspots.empty:
+            highest = station_hotspots.sort_values('rank').iloc[0]
+            station_centers[station] = {
+                'lat': float(highest['grid_lat']),
+                'lon': float(highest['grid_lon'])
+            }
+        else:
+            station_data = df[df['police_station'] == station]
+            mean_lat = station_data['latitude'].mean()
+            mean_lon = station_data['longitude'].mean()
+            if not pd.isna(mean_lat) and not pd.isna(mean_lon):
+                station_centers[station] = {
+                    'lat': float(mean_lat),
+                    'lon': float(mean_lon)
+                }
+            else:
+                station_centers[station] = {'lat': 12.9716, 'lon': 77.5946}
     station_centers_json = json.dumps(station_centers)
 
     # Calculate Live Time-Based Risk Data (Layer 6)
