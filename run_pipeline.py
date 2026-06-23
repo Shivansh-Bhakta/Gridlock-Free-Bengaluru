@@ -1573,7 +1573,7 @@ def build_combined_dashboard(df, top_50, email_data_list=None):
             }}
             leafletMarkers = [];
             map.eachLayer(function(layer) {{
-                if (layer.options && layer.options.rank) {{
+                if (layer.setStyle && layer.getLatLng) {{
                     leafletMarkers.push(layer);
                 }}
             }});
@@ -1697,13 +1697,12 @@ def build_combined_dashboard(df, top_50, email_data_list=None):
             
             top50Data.forEach(function(row) {{
                 var marker = leafletMarkers.find(function(m) {{
-                    return Math.abs(m.options.grid_lat - row.grid_lat) < 0.0001 &&
-                           Math.abs(m.options.grid_lon - row.grid_lon) < 0.0001;
+                    var latLng = m.getLatLng();
+                    return Math.abs(latLng.lat - row.grid_lat) < 0.0001 &&
+                           Math.abs(latLng.lng - row.grid_lon) < 0.0001;
                 }});
                 
                 if (marker) {{
-                    marker.options.is_dispatched = row.isDispatched;
-                    
                     var color = '#fdcb6e';
                     var radius = 7;
                     if (row.simRank <= 10) {{
@@ -1739,7 +1738,12 @@ def build_combined_dashboard(df, top_50, email_data_list=None):
             setInterval(function() {{
                 blinkState = !blinkState;
                 leafletMarkers.forEach(function(marker) {{
-                    if (marker.options.is_anomaly === 1 && marker.options.is_dispatched !== false) {{
+                    var latLng = marker.getLatLng();
+                    var row = top50Data.find(function(d) {{
+                        return Math.abs(latLng.lat - d.grid_lat) < 0.0001 &&
+                               Math.abs(latLng.lng - d.grid_lon) < 0.0001;
+                    }});
+                    if (row && row.is_anomaly === 1 && row.isDispatched !== false) {{
                         marker.setStyle({{
                             fillOpacity: blinkState ? 0.9 : 0.25,
                             weight: blinkState ? 3 : 1
