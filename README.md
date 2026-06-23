@@ -64,9 +64,7 @@ The intelligence pipeline is structured into seven distinct layers to process ra
 ## File Directory Structure
 
 * **run_pipeline.py**: The core script executing all seven processing layers of the intelligence pipeline.
-* **generate_pdf.py**: Script generating the print-ready priority patrol schedule report using ReportLab.
 * **verify_pipeline.py**: The automated verification suite checking schema requirements, file existences, and validation asserts.
-* **create_presentation.py**: Compiles the widescreen PowerPoint slide deck without MDL2 assets glyphs.
 * **Gridlock-Free Bengaluru.pdf**: The compiled widescreen PDF presentation slides.
 * **dashboard.html**: The unified interactive dashboard incorporating map, charts, and the What-If Simulator.
 * **map.html**: The standalone Leaflet map with spatial anomaly alerts and overlay filters.
@@ -103,10 +101,3 @@ To run the full pipeline manually and regenerate all dashboard, map, chart, sche
 ```bash
 py run_pipeline.py
 ```
-
-### Presentation Slide Generation
-To recompile the PowerPoint presentation slide deck:
-```bash
-py create_presentation.py
-```
-*(Note: To convert the PPTX presentation to PDF, PowerPoint must be installed on your system as it uses COM automation to ensure layout fidelity.)*
